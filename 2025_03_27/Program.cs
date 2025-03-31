@@ -30,16 +30,20 @@ namespace _2025_03_27
 
         async static Task start()
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Mit szeretnél csinálni? - Vásárolni(V) | Nézelődni(N) | Törölni(T)");
+            
             string answer = Console.ReadLine().ToUpper();
 
 
             if (answer == "V")
             {
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Neve: ");
                 string answerNameV = Console.ReadLine();
                 if (string.IsNullOrEmpty(answerNameV))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("A név nem lehet üres.");
                     return;
                 }
@@ -49,6 +53,7 @@ namespace _2025_03_27
                 string answerGrade = Console.ReadLine();
                 if (!double.TryParse(answerGrade, out grade))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Érvénytelen értékelés. Kérlek, egy számot adj meg.");
                     return;
                 }
@@ -57,6 +62,7 @@ namespace _2025_03_27
                 string answerPrice = Console.ReadLine();
                 if (!int.TryParse(answerPrice, out price))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Érvénytelen ár. Kérlek, egy egész számot adj meg.");
                     return;
                 }
@@ -64,10 +70,12 @@ namespace _2025_03_27
                 bool result = await connection.createKolbi(name, (float)grade, price);
                 if (result)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("A Kolbi sikeresen hozzáadva!");
                 }
                 else
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Hiba történt a Kolbi hozzáadásakor.");
                 }
             }
