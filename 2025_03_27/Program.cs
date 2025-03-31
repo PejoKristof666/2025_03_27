@@ -5,6 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
 using System.Windows;
 
 namespace _2025_03_27
@@ -14,49 +21,97 @@ namespace _2025_03_27
         static string name;
         static double grade;
         static int price;
-        static ServerConnection connection; //érték kell
-        static void Main(string[] args)
+        static ServerConnection connection = new ServerConnection();
+
+        static async Task Main(string[] args)
         {
-            start();
+            await start();
         }
-        async static void start()
+
+        async static Task start()
         {
-            
-
             Console.WriteLine("Mit szeretnél csinálni? - Vásárolni(V) | Nézelődni(N) | Törölni(T)");
-            string answer = Console.ReadLine();
+            string answer = Console.ReadLine().ToUpper();
 
-            if(answer == "V")
+
+            if (answer == "V")
             {
                 Console.WriteLine("Neve: ");
-                string answerName = Console.ReadLine();
-                name = answerName;
-                if(answerName != null)
+                string answerNameV = Console.ReadLine();
+                if (string.IsNullOrEmpty(answerNameV))
                 {
-                    Console.WriteLine("Értékelése: ");
-                    string answerGrade = Console.ReadLine();
-                    grade = Convert.ToDouble(answerGrade);
-                    if(answerGrade != null)
-                    {
-                        Console.WriteLine("Ára: ");
-                        string anserPrice = Console.ReadLine();
-                        price = Convert.ToInt32(anserPrice);
+                    Console.WriteLine("A név nem lehet üres.");
+                    return;
+                }
+                name = answerNameV;
 
-                        bool result = await connection.createKolbi(name, (float)grade, Convert.ToInt32(price));
-                        if(result)
-                        {
-                            Console.WriteLine(result);
-                        }
+                Console.WriteLine("Értékelése: ");
+                string answerGrade = Console.ReadLine();
+                if (!double.TryParse(answerGrade, out grade))
+                {
+                    Console.WriteLine("Érvénytelen értékelés. Kérlek, egy számot adj meg.");
+                    return;
+                }
+
+                Console.WriteLine("Ára: ");
+                string answerPrice = Console.ReadLine();
+                if (!int.TryParse(answerPrice, out price))
+                {
+                    Console.WriteLine("Érvénytelen ár. Kérlek, egy egész számot adj meg.");
+                    return;
+                }
+
+                bool result = await connection.createKolbi(name, (float)grade, price);
+                if (result)
+                {
+                    Console.WriteLine("A Kolbi sikeresen hozzáadva!");
+                }
+                else
+                {
+                    Console.WriteLine("Hiba történt a Kolbi hozzáadásakor.");
+                }
+            }
+
+
+            else if (answer == "N")
+            {
+                List<JsonData> result = await connection.Allkolbi();
+
+                if (result != null && result.Count > 0)
+                {
+                    foreach (var kolbasz in result)
+                    {
+                        Console.WriteLine($"Név: {kolbasz.kolbaszName}, Értékelés: {kolbasz.kolbaszGrade}, Ár: {kolbasz.kolbaszPrice}");
                     }
                 }
-                else if(answer == "N")
+                else
                 {
-
+                    Console.WriteLine("Nincsenek elérhető kolbászok.");
                 }
-                else if (answer == "T")
+            }
+            else if (answer == "T")
+            {
+                Console.WriteLine("Neve: ");
+                string answerNameT = Console.ReadLine();
+                if (string.IsNullOrEmpty(answerNameT))
                 {
-
+                    Console.WriteLine("A név nem lehet üres.");
+                    return;
                 }
+                name = answerNameT;
+                bool result = await connection.deleteKolbi(name);
+                if (result)
+                {
+                    Console.WriteLine("A Kolbi sikeresen törölve!");
+                }
+                else
+                {
+                    Console.WriteLine("Hiba történt a Kolbi kitörlésénél.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen választás.");
             }
 
             Console.ReadKey();

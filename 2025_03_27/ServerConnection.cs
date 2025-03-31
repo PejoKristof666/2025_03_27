@@ -12,14 +12,13 @@ namespace _2025_03_27
     public class ServerConnection
     {
         HttpClient client = new HttpClient();
-        string serverUrl = "";
-        public ServerConnection(string serverUrl)
+        public ServerConnection()
         {
-            this.serverUrl = serverUrl;
+            
         }
         public async Task<bool> createKolbi(string kolbaszName, float kolbaszGrade, int kolbaszPrice)
         {
-            string url = serverUrl + "/createKolbasz";
+            string url = "http://localhost:3000" + "/createKolbasz";
 
             try
             {
@@ -43,34 +42,40 @@ namespace _2025_03_27
             }
             return false;
         }
-        public async Task<bool> deleteKolbi(int id)
+        public async Task<bool> deleteKolbi(string kolbaszName)
         {
-            string url = serverUrl + "/deleteKolbasz";
+            string url = "http://localhost:3000" + "/deleteKolbasz";
 
             try
             {
                 var jsonInfo = new
                 {
-                    id = id,
+                    deleteKolbaszName = kolbaszName
                 };
-                string jsonStringifed = JsonConvert.SerializeObject(jsonInfo);
-                HttpContent sendThis = new StringContent(jsonStringifed, Encoding.UTF8, "Application/json");
-                HttpResponseMessage response = await client.PostAsync(url, sendThis);
+                string jsonStringified = JsonConvert.SerializeObject(jsonInfo);
+                HttpContent sendThis = new StringContent(jsonStringified, Encoding.UTF8, "Application/json");
+                var request = new HttpRequestMessage(HttpMethod.Delete, url)
+                {
+                    Content = sendThis
+                };
+                HttpResponseMessage response = await client.SendAsync(request);
                 response.EnsureSuccessStatusCode();
+
                 string result = await response.Content.ReadAsStringAsync();
                 JsonData data = JsonConvert.DeserializeObject<JsonData>(result);
+
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.WriteLine("Hiba kód: " + e.Message);
+                Console.WriteLine("Error: " + e.Message);
             }
             return false;
         }
         public async Task<List<JsonData>> Allkolbi()
         {
             List<JsonData> all = new List<JsonData>();
-            string url = serverUrl + "/kolbaszok";
+            string url = "http://localhost:3000" + "/kolbaszok";
             try
             {
                 HttpResponseMessage response = await client.GetAsync(url);
